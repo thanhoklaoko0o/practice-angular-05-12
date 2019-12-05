@@ -1,0 +1,33 @@
+{
+  "student": [
+    {
+      "id": 1,
+      "name": "Duong Cong Thang",
+      "idschool": 1
+    },
+    {
+      "id": 2,
+      "name": "Hoang Ngoc Hung",
+      "idschool": 2
+    },
+    {
+      "id": 3,
+      "name": "Xuan Y",
+      "idschool": 3
+    }
+  ],
+  "school": [
+    {
+      "idschool": 1,
+      "name": "Truong Hue"
+    },
+    {
+      "idschool": 2,
+      "name": "Truong Da Nang"
+    },
+    {
+      "idschool": 3,
+      "name": "Truong Ha Noi"
+    }
+  ]
+}
