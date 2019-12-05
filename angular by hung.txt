@@ -1,0 +1,157 @@
+---------home show list-------------
+
+<div class="col-sm-12">
+        <button type="button" class="btn btn-primary" [routerLink]="['/student/add']" routerLinkActive="router-link-active" >Create new</button>
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Is school</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of students; let i = index">
+                <td>{{ i+1 }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.idschool }}</td>
+                <td><button type="button" class="btn btn-danger" (click)="deleteStudent(item.id)">Delete</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+--------file ts xy ly home---------------
+import { Component, OnInit } from '@angular/core';
+import { Student } from 'src/app/models/student';
+import { StudentService } from 'src/app/services/student.service';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit {
+
+  private students: Student[] = [];
+
+  constructor(private studentService: StudentService) {
+    
+   }
+
+  ngOnInit() {
+    this.studentService.getAllStudent().subscribe( data => {
+      this.students = data;
+    })
+  }
+
+  deleteStudent(id: Number) {
+    this.studentService.deleteStudent(id).subscribe();
+    this.updateData(id);
+  }
+
+  updateData(id: Number) {
+    for( var i = 0; i< this.students.length; i++){
+      if(this.students[i].id == id) {
+        this.students.splice(i, 1);
+        break;
+      }
+    }
+  }
+}
+
+--------------- html phan adđ---------------
+
+<div class="col-sm-12">
+
+  <form>
+    <div class="form-group">
+      <label>Name:</label>
+      <input type="text" class="form-control" placeholder="Enter name" [(ngModel)]="student.name" [ngModelOptions]="{standalone: true}">
+    </div>
+    <div class="form-group">
+      <label>idschool:</label>
+      <select class="form-control" [(ngModel)]="student.idschool" [ngModelOptions]="{standalone: true}">
+          <option *ngFor="let item of schools" [ngValue]="item.idschool">{{ item.name }}</option>
+        </select>
+    </div>
+
+    <button type="button" class="btn btn-primary" (click)=addStudent()>Add</button>
+  </form>
+</div>
+
+-----------ts xy ly add--------------
+import { Component, OnInit } from '@angular/core';
+import { School } from 'src/app/models/school';
+import { StudentService } from 'src/app/services/student.service';
+import { Student } from 'src/app/models/student';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-add-student',
+  templateUrl: './add-student.component.html',
+  styleUrls: ['./add-student.component.css']
+})
+export class AddStudentComponent implements OnInit {
+
+  private schools: School[]= [];
+  private student: Student;
+
+  constructor(private studenService: StudentService,
+              private routerService: Router) {
+   
+   }
+
+  ngOnInit() {
+    this.student = new Student();
+    this.studenService.getAllSchool().subscribe(data => {
+      this.schools = data;
+    })
+  }
+
+  addStudent() {
+    console.log(typeof this.student.idschool);
+    this.studenService.addStudent(this.student).subscribe( data => {
+      if(data && data.id){
+        this.routerService.navigate(['student']);
+      }
+    })
+  }
+
+}
+--------------- service--------------
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Student } from '../models/student';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StudentService {
+
+  private API_STUDENT = 'http://localhost:3000/student';
+  private API_SCHOOL = 'http://localhost:3000/school';
+
+  constructor(
+    private http: HttpClient
+  ) { }
+
+  getAllStudent(): Observable<any> {
+    return this.http.get(this.API_STUDENT);
+  }
+
+  addStudent(student: Student): Observable<any> {
+    return this.http.post(this.API_STUDENT, student);
+  }
+
+  getAllSchool():Observable<any> {
+    return this.http.get(this.API_SCHOOL);
+  }
+
+  deleteStudent(id: Number): Observable<any> {
+    return this.http.delete(`${this.API_STUDENT}/${id}`);
+  }
+
+}
